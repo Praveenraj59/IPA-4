@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investment Analysis Results</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center text-primary mb-4">📈 Investment Analysis Results</h1>
+        
+        <!-- Main Stock Analysis Card -->
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow-sm p-4 bg-white rounded">
+                    <h3 class="text-center mb-4">{{ stock_name }} ({{ ticker }})</h3>
+
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><strong>
+                            🧠  Current Sentiment:</strong> 
+                            {% if sentiment_score %}
+                                {{ sentiment_score }}
+                            {% else %}
+                                <span class="text-muted">No sentiment data available</span>
+                            {% endif %}</li>
+                        </li>
+                        <li class="list-group-item"><strong>💡 Recommendation:</strong> 
+                            <span class="{% if 'Buy' in recommendation %}text-success{% elif 'Wait' in recommendation %}text-warning{% else %}text-danger{% endif %}">
+                                {{ recommendation }}
+                            </span>
+                        </li>
+                        <li class="list-group-item"><strong>🔍 Key Insights:</strong> {{ insights }}</li>
+                    </ul>
+
+                    <!-- Price Prediction Graph -->
+                    <div id="graph" class="mt-4"></div>
+
+                    <div class="text-center mt-4">
+                        <a href="/" class="btn btn-outline-primary">🔙 Back to Home</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if bar_chart_json %}
+        <!-- Gain/Loss Bar Chart -->
+        <div class="row justify-content-center mt-5">
+            <div class="col-md-8">
+                <div class="card shadow-sm p-4 bg-light rounded">
+                    <h4 class="text-center mb-4">💸 Investment Performance</h4>
+                    <div id="bar_chart"></div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            var bar_chart_json = JSON.parse({{ bar_chart_json | tojson | safe }});
+            Plotly.newPlot('bar_chart', bar_chart_json.data, bar_chart_json.layout);
+        </script>
+        {% endif %}
+
+
+        <!-- Comparative Analysis Section -->
+        <div class="row justify-content-center mt-5">
+            <div class="col-md-10">
+                <div class="card shadow-sm p-4 bg-light rounded">
+                    <h4 class="text-center mb-4">📊 Comparative Analysis of Growth Potential</h4>
+                    <div id="comparison_graph"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Main stock graph
+        var graph_json = JSON.parse({{ graph_json | tojson | safe }});
+        Plotly.newPlot('graph', graph_json.data, graph_json.layout);
+
+        // Comparative analysis graph
+        var comparison_graph = {{ comparison_graph | safe }};
+        Plotly.newPlot('comparison_graph', comparison_graph.data, comparison_graph.layout);
+    </script>
+</body>
+</html>
